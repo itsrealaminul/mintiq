@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #0F1115;
+  --color-card: #1A1D24;
+  --color-mint: #00D9A3;
+  --color-amber: #FFB020;
+  --color-text: #E8E8EA;
+  --color-text-dim: #8B8F99;
+  --color-border: #2A2E38;
+  --color-danger: #FF5C5C;
+}
+
+@theme inline {
+  --font-sans: var(--font-hind-siliguri);
+}
+
+body {
+  font-family: var(--font-hind-siliguri), sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+}
