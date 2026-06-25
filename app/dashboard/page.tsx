@@ -105,7 +105,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row max-w-[1400px] mx-auto">
+    <div className="min-h-screen flex flex-col lg:flex-row w-full">
       {/* Sidebar (desktop) / Header (mobile) */}
       <header className="lg:w-64 lg:border-r lg:border-b-0 lg:flex-col lg:items-stretch lg:justify-start lg:px-5 lg:py-6 lg:sticky lg:top-0 lg:h-screen px-5 py-4 border-b border-[#2A2E38] flex items-center justify-between sticky top-0 bg-[#0F1115] z-10">
         <div className="flex items-center gap-2 font-bold text-[19px] lg:mb-8">
@@ -166,16 +166,17 @@ export default function DashboardPage() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 px-5 lg:px-8 py-4 lg:py-6 pb-28 lg:pb-10 max-w-[480px] lg:max-w-none mx-auto lg:mx-0 w-full">
+      <main className="flex-1 px-5 lg:px-10 py-4 lg:py-8 pb-28 lg:pb-10 w-full lg:overflow-y-auto">
+        <div className="max-w-[480px] lg:max-w-[1100px] mx-auto lg:mx-0">
         {tab === 'browse' && (
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide">
                 আজকের জন্য উপলব্ধ টাস্ক
               </div>
               <button
                 onClick={() => setShowNewTask(true)}
-                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl"
+                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl whitespace-nowrap"
               >
                 + নতুন টাস্ক পোস্ট করুন
               </button>
@@ -194,13 +195,13 @@ export default function DashboardPage() {
 
         {tab === 'mine' && (
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide">
                 আপনার পোস্ট করা টাস্ক
               </div>
               <button
                 onClick={() => setShowNewTask(true)}
-                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl"
+                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl whitespace-nowrap"
               >
                 + নতুন টাস্ক পোস্ট করুন
               </button>
@@ -279,6 +280,7 @@ export default function DashboardPage() {
             )}
           </div>
         )}
+        </div>
       </main>
 
       {/* FAB (mobile only) */}
