@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri } from "next/font/google";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 
@@ -29,6 +30,7 @@ export default function RootLayout({
           src="https://pl29892400.effectivecpmnetwork.com/84/78/d4/8478d4246b380557aa79b8bf01df131d.js"
           strategy="lazyOnload"
         />
+        <Analytics />
       </body>
     </html>
   );
