@@ -8,6 +8,7 @@ import { Task, Submission } from '@/lib/types'
 import TaskCard from '@/components/TaskCard'
 import ActionModal from '@/components/ActionModal'
 import NewTaskModal from '@/components/NewTaskModal'
+import SubmissionList from '@/components/SubmissionList'
 
 type Tab = 'browse' | 'mine' | 'history'
 
@@ -22,6 +23,7 @@ export default function DashboardPage() {
   const [history, setHistory] = useState<Submission[]>([])
   const [activeTask, setActiveTask] = useState<Task | null>(null)
   const [showNewTask, setShowNewTask] = useState(false)
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
   const [bump, setBump] = useState(false)
 
@@ -175,6 +177,20 @@ export default function DashboardPage() {
                   <div className="text-[11px] text-[#8B8F99] mt-1.5">
                     {t.total_completed}/{t.total_needed} সম্পন্ন
                   </div>
+                  <button
+                    onClick={() => setExpandedTaskId(expandedTaskId === t.id ? null : t.id)}
+                    className="text-xs text-[#00D9A3] font-semibold mt-2.5"
+                  >
+                    {expandedTaskId === t.id ? '▲ সাবমিশন বন্ধ করুন' : '▼ সাবমিশন রিভিউ করুন'}
+                  </button>
+                  {expandedTaskId === t.id && (
+                    <SubmissionList
+                      taskId={t.id}
+                      onUpdated={() => {
+                        loadMyTasks()
+                      }}
+                    />
+                  )}
                 </div>
               ))
             )}
