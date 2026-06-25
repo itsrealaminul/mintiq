@@ -10,6 +10,7 @@ import ActionModal from '@/components/ActionModal'
 import NewTaskModal from '@/components/NewTaskModal'
 import SubmissionList from '@/components/SubmissionList'
 import AdsterraBanner from '@/components/AdsterraBanner'
+import ReferralCard from '@/components/ReferralCard'
 
 type Tab = 'browse' | 'mine' | 'history'
 
@@ -203,6 +204,7 @@ export default function DashboardPage() {
 
         {tab === 'mine' && (
           <div>
+            <ReferralCard profile={profile} />
             <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide">
                 আপনার পোস্ট করা টাস্ক
