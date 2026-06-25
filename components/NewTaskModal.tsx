@@ -74,11 +74,11 @@ export default function NewTaskModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 flex items-end justify-center z-[100]"
+      className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[100] p-0 sm:p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-[#1A1D24] rounded-t-[20px] w-full max-w-[480px] p-6 pb-8">
-        <div className="w-9 h-1 bg-[#2A2E38] rounded-full mx-auto mb-4" />
+      <div className="bg-[#1A1D24] rounded-t-[20px] sm:rounded-[20px] w-full max-w-[480px] p-6 pb-8">
+        <div className="w-9 h-1 bg-[#2A2E38] rounded-full mx-auto mb-4 sm:hidden" />
         <h3 className="text-[17px] font-bold mb-1">নতুন টাস্ক পোস্ট করুন</h3>
         <p className="text-[13px] text-[#8B8F99] mb-5">
           আপনার কন্টেন্ট অন্য ক্রিয়েটররা দেখবে — real মানুষ, real এনগেজমেন্ট
