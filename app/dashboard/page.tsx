@@ -12,6 +12,12 @@ import SubmissionList from '@/components/SubmissionList'
 
 type Tab = 'browse' | 'mine' | 'history'
 
+const TABS: { id: Tab; label: string; icon: string }[] = [
+  { id: 'browse', label: 'টাস্ক করুন', icon: '🎯' },
+  { id: 'mine', label: 'আমার টাস্ক', icon: '📦' },
+  { id: 'history', label: 'হিস্টোরি', icon: '🕓' },
+]
+
 export default function DashboardPage() {
   const { user, profile, loading, refreshProfile, signOut } = useAuth()
   const router = useRouter()
@@ -99,40 +105,58 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-[480px] mx-auto min-h-screen flex flex-col relative">
-      {/* Header */}
-      <header className="px-5 py-4 border-b border-[#2A2E38] flex items-center justify-between sticky top-0 bg-[#0F1115] z-10">
-        <div className="flex items-center gap-2 font-bold text-[19px]">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#00D9A3] to-[#00B589] flex items-center justify-center text-sm font-bold text-[#04261D]">
+    <div className="min-h-screen flex flex-col lg:flex-row max-w-[1400px] mx-auto">
+      {/* Sidebar (desktop) / Header (mobile) */}
+      <header className="lg:w-64 lg:border-r lg:border-b-0 lg:flex-col lg:items-stretch lg:justify-start lg:px-5 lg:py-6 lg:sticky lg:top-0 lg:h-screen px-5 py-4 border-b border-[#2A2E38] flex items-center justify-between sticky top-0 bg-[#0F1115] z-10">
+        <div className="flex items-center gap-2 font-bold text-[19px] lg:mb-8">
+          <div className="w-7 h-7 lg:w-9 lg:h-9 rounded-lg bg-gradient-to-br from-[#00D9A3] to-[#00B589] flex items-center justify-center text-sm lg:text-base font-bold text-[#04261D]">
             M
           </div>
           MINTIQ
         </div>
-        <div className="flex items-center gap-2">
-          <div className="bg-[#1A1D24] border border-[#2A2E38] rounded-full px-3.5 py-1.5 flex items-center gap-1.5 text-sm font-semibold">
+
+        {/* Nav tabs - shown in sidebar on desktop */}
+        <nav className="hidden lg:flex lg:flex-col lg:gap-1 lg:mb-8">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-left transition ${
+                tab === t.id
+                  ? 'bg-[#00D9A3]/10 text-[#00D9A3]'
+                  : 'text-[#8B8F99] hover:bg-[#1A1D24]'
+              }`}
+            >
+              <span>{t.icon}</span>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2 lg:flex-col lg:items-stretch lg:gap-3 lg:mt-auto">
+          <div className="bg-[#1A1D24] border border-[#2A2E38] rounded-full lg:rounded-xl px-3.5 py-1.5 lg:py-2.5 flex items-center justify-center gap-1.5 text-sm font-semibold">
             <span className="w-[7px] h-[7px] bg-[#FFB020] rounded-full" />
             <span className={`tabular-nums transition-transform ${bump ? 'scale-125 text-[#FFB020]' : ''}`}>
               {profile.points}
             </span>{' '}
             পয়েন্ট
           </div>
-          <button onClick={signOut} className="text-[#8B8F99] text-xs underline">
+          <button
+            onClick={signOut}
+            className="text-[#8B8F99] text-xs underline lg:no-underline lg:bg-[#1A1D24] lg:border lg:border-[#2A2E38] lg:rounded-xl lg:py-2 lg:text-center"
+          >
             লগআউট
           </button>
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="flex px-5 gap-6 border-b border-[#2A2E38]">
-        {[
-          { id: 'browse', label: 'টাস্ক করুন' },
-          { id: 'mine', label: 'আমার টাস্ক' },
-          { id: 'history', label: 'হিস্টোরি' },
-        ].map((t) => (
+      {/* Tabs (mobile only) */}
+      <div className="flex lg:hidden px-5 gap-6 border-b border-[#2A2E38] overflow-x-auto">
+        {TABS.map((t) => (
           <button
             key={t.id}
-            onClick={() => setTab(t.id as Tab)}
-            className={`pb-3 pt-3.5 text-sm font-semibold border-b-2 -mb-px ${
+            onClick={() => setTab(t.id)}
+            className={`pb-3 pt-3.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap ${
               tab === t.id ? 'text-[#00D9A3] border-[#00D9A3]' : 'text-[#8B8F99] border-transparent'
             }`}
           >
@@ -142,57 +166,79 @@ export default function DashboardPage() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 px-5 py-4 pb-28">
+      <main className="flex-1 px-5 lg:px-8 py-4 lg:py-6 pb-28 lg:pb-10 max-w-[480px] lg:max-w-none mx-auto lg:mx-0 w-full">
         {tab === 'browse' && (
           <div>
-            <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide mb-3">
-              আজকের জন্য উপলব্ধ টাস্ক
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide">
+                আজকের জন্য উপলব্ধ টাস্ক
+              </div>
+              <button
+                onClick={() => setShowNewTask(true)}
+                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl"
+              >
+                + নতুন টাস্ক পোস্ট করুন
+              </button>
             </div>
             {tasks.length === 0 ? (
               <EmptyState icon="📭" title="এখন কোনো টাস্ক নেই" desc="কিছুক্ষণ পর আবার চেক করুন" />
             ) : (
-              tasks.map((t) => <TaskCard key={t.id} task={t} onStart={setActiveTask} />)
+              <div className="lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
+                {tasks.map((t) => (
+                  <TaskCard key={t.id} task={t} onStart={setActiveTask} />
+                ))}
+              </div>
             )}
           </div>
         )}
 
         {tab === 'mine' && (
           <div>
-            <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide mb-3">
-              আপনার পোস্ট করা টাস্ক
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide">
+                আপনার পোস্ট করা টাস্ক
+              </div>
+              <button
+                onClick={() => setShowNewTask(true)}
+                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl"
+              >
+                + নতুন টাস্ক পোস্ট করুন
+              </button>
             </div>
             {myTasks.length === 0 ? (
               <EmptyState icon="📦" title="কোনো টাস্ক পোস্ট করেননি" desc="নিচের বাটনে ক্লিক করে শুরু করুন" />
             ) : (
-              myTasks.map((t) => (
-                <div key={t.id} className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-4 mb-3">
-                  <div className="text-sm font-semibold line-clamp-1 mb-1">{t.content_link}</div>
-                  <div className="text-xs text-[#8B8F99] mb-2.5">স্ট্যাটাস: {t.status === 'active' ? 'চলমান' : t.status}</div>
-                  <div className="w-full h-[5px] bg-[#2A2E38] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#00D9A3] to-[#00B589] rounded-full"
-                      style={{ width: `${Math.min(100, (t.total_completed / t.total_needed) * 100)}%` }}
-                    />
+              <div className="lg:grid lg:grid-cols-2 lg:gap-4">
+                {myTasks.map((t) => (
+                  <div key={t.id} className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-4 mb-3 lg:mb-0">
+                    <div className="text-sm font-semibold line-clamp-1 mb-1">{t.content_link}</div>
+                    <div className="text-xs text-[#8B8F99] mb-2.5">স্ট্যাটাস: {t.status === 'active' ? 'চলমান' : t.status}</div>
+                    <div className="w-full h-[5px] bg-[#2A2E38] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#00D9A3] to-[#00B589] rounded-full"
+                        style={{ width: `${Math.min(100, (t.total_completed / t.total_needed) * 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-[11px] text-[#8B8F99] mt-1.5">
+                      {t.total_completed}/{t.total_needed} সম্পন্ন
+                    </div>
+                    <button
+                      onClick={() => setExpandedTaskId(expandedTaskId === t.id ? null : t.id)}
+                      className="text-xs text-[#00D9A3] font-semibold mt-2.5"
+                    >
+                      {expandedTaskId === t.id ? '▲ সাবমিশন বন্ধ করুন' : '▼ সাবমিশন রিভিউ করুন'}
+                    </button>
+                    {expandedTaskId === t.id && (
+                      <SubmissionList
+                        taskId={t.id}
+                        onUpdated={() => {
+                          loadMyTasks()
+                        }}
+                      />
+                    )}
                   </div>
-                  <div className="text-[11px] text-[#8B8F99] mt-1.5">
-                    {t.total_completed}/{t.total_needed} সম্পন্ন
-                  </div>
-                  <button
-                    onClick={() => setExpandedTaskId(expandedTaskId === t.id ? null : t.id)}
-                    className="text-xs text-[#00D9A3] font-semibold mt-2.5"
-                  >
-                    {expandedTaskId === t.id ? '▲ সাবমিশন বন্ধ করুন' : '▼ সাবমিশন রিভিউ করুন'}
-                  </button>
-                  {expandedTaskId === t.id && (
-                    <SubmissionList
-                      taskId={t.id}
-                      onUpdated={() => {
-                        loadMyTasks()
-                      }}
-                    />
-                  )}
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -205,33 +251,38 @@ export default function DashboardPage() {
             {history.length === 0 ? (
               <EmptyState icon="🕓" title="এখনও কোনো সাবমিশন নেই" desc="টাস্ক করলে এখানে দেখাবে" />
             ) : (
-              history.map((h) => (
-                <div key={h.id} className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-4 mb-3 flex justify-between items-start">
-                  <div>
-                    <div className="text-sm font-semibold mb-1">
-                      {new Date(h.created_at).toLocaleString('bn-BD')}
-                    </div>
-                  </div>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase ${
-                      h.status === 'approved'
-                        ? 'text-[#00D9A3] bg-[#00D9A3]/10'
-                        : h.status === 'rejected'
-                        ? 'text-[#FF5C5C] bg-[#FF5C5C]/10'
-                        : 'text-[#FFB020] bg-[#FFB020]/10'
-                    }`}
+              <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+                {history.map((h) => (
+                  <div
+                    key={h.id}
+                    className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-4 mb-3 lg:mb-0 flex justify-between items-start"
                   >
-                    {h.status === 'approved' ? 'অনুমোদিত' : h.status === 'rejected' ? 'বাতিল' : 'পেন্ডিং'}
-                  </span>
-                </div>
-              ))
+                    <div>
+                      <div className="text-sm font-semibold mb-1">
+                        {new Date(h.created_at).toLocaleString('bn-BD')}
+                      </div>
+                    </div>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase ${
+                        h.status === 'approved'
+                          ? 'text-[#00D9A3] bg-[#00D9A3]/10'
+                          : h.status === 'rejected'
+                          ? 'text-[#FF5C5C] bg-[#FF5C5C]/10'
+                          : 'text-[#FFB020] bg-[#FFB020]/10'
+                      }`}
+                    >
+                      {h.status === 'approved' ? 'অনুমোদিত' : h.status === 'rejected' ? 'বাতিল' : 'পেন্ডিং'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
       </main>
 
-      {/* FAB */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[480px] px-5">
+      {/* FAB (mobile only) */}
+      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[480px] px-5">
         <button
           onClick={() => setShowNewTask(true)}
           className="w-full bg-[#E8E8EA] text-[#0F1115] font-bold py-[15px] rounded-2xl text-sm shadow-2xl"
