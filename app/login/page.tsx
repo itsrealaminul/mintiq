@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export default function LoginPage() {
+function LoginForm() {
   const [mode, setMode] = useState<'login' | 'signup'>('signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const refCode = searchParams.get('ref')
   const supabase = createClient()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -25,7 +27,10 @@ export default function LoginPage() {
         email,
         password,
         options: {
-          data: { display_name: displayName },
+          data: {
+            display_name: displayName,
+            ...(refCode ? { referred_by_code: refCode } : {}),
+          },
         },
       })
       if (signUpError) {
@@ -68,6 +73,14 @@ export default function LoginPage() {
         </div>
         <p className="text-sm text-[#8B8F99]">Creator-দের মধ্যে real cross-promotion</p>
       </div>
+
+      {refCode && (
+        <div className="bg-[#00D9A3]/10 border border-[#00D9A3]/30 rounded-xl px-4 py-3 mb-5 text-center">
+          <p className="text-sm text-[#00D9A3] font-semibold">
+            🎁 কারো রেফারেল লিংক থেকে এসেছেন — সাইন আপ করলে আপনিও ১০০ পয়েন্ট পাবেন
+          </p>
+        </div>
+      )}
 
       <div className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-5">
         <div className="flex gap-2 mb-5 bg-[#0F1115] p-1 rounded-xl">
@@ -174,5 +187,13 @@ export default function LoginPage() {
         </p>
       )}
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }
