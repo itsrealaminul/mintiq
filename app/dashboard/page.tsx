@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { createClient } from '@/lib/supabase/client'
@@ -9,6 +9,7 @@ import TaskCard from '@/components/TaskCard'
 import ActionModal from '@/components/ActionModal'
 import NewTaskModal from '@/components/NewTaskModal'
 import SubmissionList from '@/components/SubmissionList'
+import AdsterraBanner from '@/components/AdsterraBanner'
 
 type Tab = 'browse' | 'mine' | 'history'
 
@@ -185,8 +186,15 @@ export default function DashboardPage() {
               <EmptyState icon="📭" title="এখন কোনো টাস্ক নেই" desc="কিছুক্ষণ পর আবার চেক করুন" />
             ) : (
               <div className="lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
-                {tasks.map((t) => (
-                  <TaskCard key={t.id} task={t} onStart={setActiveTask} />
+                {tasks.map((t, i) => (
+                  <React.Fragment key={t.id}>
+                    <TaskCard task={t} onStart={setActiveTask} />
+                    {(i + 1) % 3 === 0 && (
+                      <div className="lg:col-span-full">
+                        <AdsterraBanner />
+                      </div>
+                    )}
+                  </React.Fragment>
                 ))}
               </div>
             )}
