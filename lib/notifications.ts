@@ -47,7 +47,6 @@ export function sendLocalNotification(title: string, body: string, icon?: string
       icon: icon || '/favicon.svg',
       badge: '/favicon.svg',
       tag: tag || 'mintiq-notification',
-      vibrate: [200, 100, 200],
     })
   }
 }
