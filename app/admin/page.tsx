@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
-import { Shield, Users, Package, Wallet, CheckCircle2, XCircle, Eye, TrendingUp, BarChart3 } from 'lucide-react'
+import { Shield, Users, Package, Wallet, CheckCircle2, XCircle, Eye, TrendingUp, BarChart3, Calendar, Clock } from 'lucide-react'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
@@ -127,6 +127,20 @@ export default function AdminPage() {
             </Card>
           ))}
         </div>
+
+        {/* Payment Schedule */}
+        <Card className="mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-[var(--amber)]" />
+              <div>
+                <div className="font-bold">Payment Schedule</div>
+                <div className="text-sm text-[var(--text-muted)]">প্রতি ১৫ দিনে একবার পেমেন্ট প্রসেস করুন</div>
+              </div>
+            </div>
+            <Badge color="amber">Next: {new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('bn-BD')}</Badge>
+          </div>
+        </Card>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-4 overflow-x-auto">
