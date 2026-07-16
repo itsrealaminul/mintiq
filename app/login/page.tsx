@@ -3,6 +3,11 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { Sparkles, Mail, Lock, User, Facebook, ArrowLeft } from 'lucide-react'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
 
 function LoginForm() {
   const [mode, setMode] = useState<'login' | 'signup'>('signup')
@@ -38,20 +43,13 @@ function LoginForm() {
         setLoading(false)
         return
       }
-      // fb profile link আপডেট করি profile তৈরি হওয়ার পর
       if (data.user && fbLink) {
-        await supabase
-          .from('profiles')
-          .update({ fb_profile_link: fbLink })
-          .eq('id', data.user.id)
+        await supabase.from('profiles').update({ fb_profile_link: fbLink }).eq('id', data.user.id)
       }
       router.push('/dashboard')
       router.refresh()
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
       if (signInError) {
         setError(signInError.message)
         setLoading(false)
@@ -63,128 +61,133 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-5 py-10 max-w-[480px] mx-auto w-full">
-      <div className="text-center mb-8">
+    <div className="min-h-screen flex flex-col justify-center px-5 py-10 max-w-[440px] mx-auto w-full">
+      {/* Back */}
+      <Link href="/" className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] mb-8 transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        হোমে ফিরুন
+      </Link>
+
+      {/* Logo */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-8"
+      >
         <div className="inline-flex items-center gap-2 mb-2">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#00D9A3] to-[#00B589] flex items-center justify-center font-bold text-[#04261D]">
-            M
+          <div className="w-10 h-10 rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--mint)] to-[var(--mint-dark)] flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-[#04261D]" />
           </div>
           <span className="text-xl font-bold">MINTIQ</span>
         </div>
-        <p className="text-sm text-[#8B8F99]">Creator-দের মধ্যে real cross-promotion</p>
-      </div>
+        <p className="text-sm text-[var(--text-muted)]">টাকা আয় করুন — ফ্রি শুরু করুন</p>
+      </motion.div>
 
+      {/* Referral Banner */}
       {refCode && (
-        <div className="bg-[#00D9A3]/10 border border-[#00D9A3]/30 rounded-xl px-4 py-3 mb-5 text-center">
-          <p className="text-sm text-[#00D9A3] font-semibold">
-            🎁 কারো রেফারেল লিংক থেকে এসেছেন — সাইন আপ করলে আপনিও ১০০ পয়েন্ট পাবেন
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[var(--mint-glow)] border border-[var(--mint)]/30 rounded-[var(--radius-lg)] px-4 py-3 mb-5 text-center"
+        >
+          <p className="text-sm text-[var(--mint)] font-semibold">
+            🎁 রেফারেল বোনাস — সাইন আপ করলে ১০০ পয়েন্ট ফ্রি!
           </p>
-        </div>
+        </motion.div>
       )}
 
-      <div className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-5">
-        <div className="flex gap-2 mb-5 bg-[#0F1115] p-1 rounded-xl">
-          <button
-            type="button"
-            onClick={() => setMode('signup')}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
-              mode === 'signup' ? 'bg-[#00D9A3] text-[#04261D]' : 'text-[#8B8F99]'
-            }`}
-          >
-            নতুন অ্যাকাউন্ট
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('login')}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${
-              mode === 'login' ? 'bg-[#00D9A3] text-[#04261D]' : 'text-[#8B8F99]'
-            }`}
-          >
-            লগইন
-          </button>
+      {/* Form Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-xl)] p-6"
+      >
+        {/* Tab Switch */}
+        <div className="flex gap-2 mb-6 bg-[var(--bg-deep)] p-1 rounded-[var(--radius-lg)]">
+          {(['signup', 'login'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => { setMode(m); setError('') }}
+              className={`flex-1 py-2.5 rounded-[var(--radius-md)] text-sm font-semibold transition-all duration-200 ${
+                mode === m
+                  ? 'bg-[var(--mint)] text-[#04261D] shadow-[var(--shadow-glow-mint)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+            >
+              {m === 'signup' ? 'নতুন অ্যাকাউন্ট' : 'লগইন'}
+            </button>
+          ))}
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {mode === 'signup' && (
-            <div>
-              <label className="block text-xs font-semibold text-[#8B8F99] mb-1.5">
-                আপনার নাম
-              </label>
-              <input
-                type="text"
-                required
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="যেমন: রহিম উদ্দিন"
-                className="w-full bg-[#0F1115] border border-[#2A2E38] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#00D9A3]"
-              />
-            </div>
+            <Input
+              label="আপনার নাম"
+              value={displayName}
+              onChange={setDisplayName}
+              placeholder="যেমন: রহিম উদ্দিন"
+              required
+              icon={<User className="w-4 h-4" />}
+            />
           )}
 
-          <div>
-            <label className="block text-xs font-semibold text-[#8B8F99] mb-1.5">
-              ইমেইল
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full bg-[#0F1115] border border-[#2A2E38] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#00D9A3]"
-            />
-          </div>
+          <Input
+            label="ইমেইল"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="you@example.com"
+            required
+            icon={<Mail className="w-4 h-4" />}
+          />
 
-          <div>
-            <label className="block text-xs font-semibold text-[#8B8F99] mb-1.5">
-              পাসওয়ার্ড
-            </label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="কমপক্ষে ৬ ক্যারেক্টার"
-              className="w-full bg-[#0F1115] border border-[#2A2E38] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#00D9A3]"
-            />
-          </div>
+          <Input
+            label="পাসওয়ার্ড"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            placeholder="কমপক্ষে ৬ ক্যারেক্টার"
+            required
+            minLength={6}
+            icon={<Lock className="w-4 h-4" />}
+          />
 
           {mode === 'signup' && (
-            <div>
-              <label className="block text-xs font-semibold text-[#8B8F99] mb-1.5">
-                Facebook প্রোফাইল লিংক (যাচাইয়ের জন্য)
-              </label>
-              <input
-                type="text"
-                value={fbLink}
-                onChange={(e) => setFbLink(e.target.value)}
-                placeholder="https://facebook.com/yourprofile"
-                className="w-full bg-[#0F1115] border border-[#2A2E38] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#00D9A3]"
-              />
-            </div>
+            <Input
+              label="Facebook প্রোফাইল লিংক (ঐচ্ছিক)"
+              value={fbLink}
+              onChange={setFbLink}
+              placeholder="https://facebook.com/yourprofile"
+              icon={<Facebook className="w-4 h-4" />}
+            />
           )}
 
           {error && (
-            <p className="text-xs text-[#FF5C5C] bg-[#FF5C5C]/10 rounded-lg px-3 py-2">
+            <motion.p
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-xs text-[var(--danger)] bg-[var(--danger-glow)] rounded-[var(--radius-md)] px-3 py-2"
+            >
               {error}
-            </p>
+            </motion.p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-[#00D9A3] text-[#04261D] font-bold py-3 rounded-lg text-sm mt-1 disabled:opacity-50"
-          >
+          <Button type="submit" loading={loading} fullWidth size="lg">
             {loading ? 'অপেক্ষা করুন...' : mode === 'signup' ? 'অ্যাকাউন্ট তৈরি করুন' : 'লগইন করুন'}
-          </button>
+          </Button>
         </form>
-      </div>
+      </motion.div>
 
       {mode === 'signup' && (
-        <p className="text-center text-xs text-[#8B8F99] mt-4">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-center text-xs text-[var(--text-muted)] mt-4"
+        >
           নতুন অ্যাকাউন্টে ১০০ পয়েন্ট ফ্রি পাবেন 🎁
-        </p>
+        </motion.p>
       )}
     </div>
   )
@@ -192,7 +195,11 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--mint)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
       <LoginForm />
     </Suspense>
   )

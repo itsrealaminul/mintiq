@@ -1,342 +1,247 @@
 'use client'
 
-import React, { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { createClient } from '@/lib/supabase/client'
-import { Task, Submission } from '@/lib/types'
-import TaskCard from '@/components/TaskCard'
-import ActionModal from '@/components/ActionModal'
-import NewTaskModal from '@/components/NewTaskModal'
-import SubmissionList from '@/components/SubmissionList'
-import AdsterraBanner from '@/components/AdsterraBanner'
-import ReferralCard from '@/components/ReferralCard'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import {
+  Eye, Video, ClipboardList, Gamepad2, ListChecks,
+  Wallet, Trophy, Users, Flame, Star, TrendingUp, Gift, ArrowRight
+} from 'lucide-react'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import ProgressRing from '@/components/ui/ProgressRing'
+import { getLevelInfo, formatPoints, cn } from '@/lib/utils'
+import type { Transaction } from '@/lib/types'
+import { useTransactions } from '@/lib/hooks'
 
-type Tab = 'browse' | 'mine' | 'history'
-
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'browse', label: 'টাস্ক করুন', icon: '🎯' },
-  { id: 'mine', label: 'আমার টাস্ক', icon: '📦' },
-  { id: 'history', label: 'হিস্টোরি', icon: '🕓' },
+const QUICK_ACTIONS = [
+  { icon: Eye, label: 'বিজ্ঞাপন দেখুন', href: '/dashboard/ads', color: 'var(--mint)', points: '+1-3' },
+  { icon: Video, label: 'ভিডিও দেখুন', href: '/dashboard/videos', color: 'var(--cyan)', points: '+5' },
+  { icon: ClipboardList, label: 'সার্ভে করুন', href: '/dashboard/surveys', color: 'var(--indigo)', points: '+15-25' },
+  { icon: Gamepad2, label: 'গেম খেলুন', href: '/dashboard/games', color: 'var(--pink)', points: '+3-5' },
+  { icon: ListChecks, label: 'টাস্ক করুন', href: '/dashboard/tasks', color: 'var(--amber)', points: '+2-5' },
 ]
 
 export default function DashboardPage() {
-  const { user, profile, loading, refreshProfile, signOut } = useAuth()
-  const router = useRouter()
-  const supabase = createClient()
-
-  const [tab, setTab] = useState<Tab>('browse')
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [myTasks, setMyTasks] = useState<Task[]>([])
-  const [history, setHistory] = useState<Submission[]>([])
-  const [activeTask, setActiveTask] = useState<Task | null>(null)
-  const [showNewTask, setShowNewTask] = useState(false)
-  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null)
+  const { profile, refreshProfile } = useAuth()
+  const [dailyBonus, setDailyBonus] = useState<{ claimed: boolean; streak: number }>({ claimed: false, streak: 0 })
+  const [claiming, setClaiming] = useState(false)
   const [toast, setToast] = useState('')
-  const [bump, setBump] = useState(false)
+  const supabase = createClient()
+  const { transactions } = useTransactions(profile?.id)
 
   useEffect(() => {
-    if (!loading && !user) router.push('/login')
-  }, [loading, user, router])
+    if (!profile) return
+    checkDailyBonus()
+  }, [profile])
 
-  const loadTasks = useCallback(async () => {
-    if (!user) return
+  async function checkDailyBonus() {
+    if (!profile) return
     const { data } = await supabase
-      .from('tasks')
+      .from('daily_bonuses')
       .select('*')
-      .eq('status', 'active')
-      .neq('owner_id', user.id)
-      .order('created_at', { ascending: false })
-    if (data) setTasks(data as Task[])
-  }, [user, supabase])
+      .eq('user_id', profile.id)
+      .eq('claimed_date', new Date().toISOString().split('T')[0])
+      .single()
+    setDailyBonus({
+      claimed: !!data,
+      streak: profile.streak_days,
+    })
+  }
 
-  const loadMyTasks = useCallback(async () => {
-    if (!user) return
-    const { data } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('owner_id', user.id)
-      .order('created_at', { ascending: false })
-    if (data) setMyTasks(data as Task[])
-  }, [user, supabase])
-
-  const loadHistory = useCallback(async () => {
-    if (!user) return
-    const { data } = await supabase
-      .from('submissions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    if (data) setHistory(data as Submission[])
-  }, [user, supabase])
-
-  useEffect(() => {
-    if (user) {
-      loadTasks()
-      loadMyTasks()
-      loadHistory()
+  async function claimDailyBonus() {
+    if (!profile || dailyBonus.claimed) return
+    setClaiming(true)
+    const { data, error } = await supabase.rpc('claim_daily_bonus', { _user_id: profile.id })
+    if (!error && data) {
+      setDailyBonus({ claimed: true, streak: dailyBonus.streak + 1 })
+      await refreshProfile()
+      showToast(`🎉 ${data} পয়েন্ট পেয়েছেন!`)
     }
-  }, [user, loadTasks, loadMyTasks, loadHistory])
+    setClaiming(false)
+  }
 
   function showToast(msg: string) {
     setToast(msg)
-    setTimeout(() => setToast(''), 2800)
+    setTimeout(() => setToast(''), 3000)
   }
 
-  async function handleSubmitted() {
-    setActiveTask(null)
-    await loadHistory()
-    showToast('সাবমিট হয়েছে — অনুমোদনের জন্য অপেক্ষা করুন')
-  }
+  if (!profile) return null
 
-  async function handleNewTaskCreated() {
-    setShowNewTask(false)
-    await refreshProfile()
-    await loadMyTasks()
-    setBump(true)
-    setTimeout(() => setBump(false), 200)
-    showToast('✓ টাস্ক পোস্ট হয়েছে')
-  }
-
-  if (loading || !user || !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-[#8B8F99] text-sm">
-        লোড হচ্ছে...
-      </div>
-    )
-  }
+  const levelInfo = getLevelInfo(profile.total_earned)
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row w-full">
-      {/* Sidebar (desktop) / Header (mobile) */}
-      <header className="lg:w-64 lg:border-r lg:border-b-0 lg:flex-col lg:items-stretch lg:justify-start lg:px-5 lg:py-6 lg:sticky lg:top-0 lg:h-screen px-5 py-4 border-b border-[#2A2E38] flex items-center justify-between sticky top-0 bg-[#0F1115] z-10">
-        <div className="flex items-center gap-2 font-bold text-[19px] lg:mb-8">
-          <div className="w-7 h-7 lg:w-9 lg:h-9 rounded-lg bg-gradient-to-br from-[#00D9A3] to-[#00B589] flex items-center justify-center text-sm lg:text-base font-bold text-[#04261D]">
-            M
-          </div>
-          MINTIQ
-        </div>
+    <div className="max-w-5xl mx-auto">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
+        <h1 className="text-xl lg:text-2xl font-bold mb-1">
+          স্বাগতম, {profile.display_name}! 👋
+        </h1>
+        <p className="text-sm text-[var(--text-muted)]">আজকে কতটুকু আয় করেছেন?</p>
+      </motion.div>
 
-        {/* Nav tabs - shown in sidebar on desktop */}
-        <nav className="hidden lg:flex lg:flex-col lg:gap-1 lg:mb-8">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-left transition ${
-                tab === t.id
-                  ? 'bg-[#00D9A3]/10 text-[#00D9A3]'
-                  : 'text-[#8B8F99] hover:bg-[#1A1D24]'
-              }`}
-            >
-              <span>{t.icon}</span>
-              {t.label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2 lg:flex-col lg:items-stretch lg:gap-3 lg:mt-auto">
-          <div className="bg-[#1A1D24] border border-[#2A2E38] rounded-full lg:rounded-xl px-3.5 py-1.5 lg:py-2.5 flex items-center justify-center gap-1.5 text-sm font-semibold">
-            <span className="w-[7px] h-[7px] bg-[#FFB020] rounded-full" />
-            <span className={`tabular-nums transition-transform ${bump ? 'scale-125 text-[#FFB020]' : ''}`}>
-              {profile.points}
-            </span>{' '}
-            পয়েন্ট
-          </div>
-          <button
-            onClick={signOut}
-            className="text-[#8B8F99] text-xs underline lg:no-underline lg:bg-[#1A1D24] lg:border lg:border-[#2A2E38] lg:rounded-xl lg:py-2 lg:text-center"
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+        {[
+          { label: 'বর্তমান পয়েন্ট', value: formatPoints(profile.points), icon: Star, color: 'var(--amber)', bg: 'var(--amber-glow)' },
+          { label: 'মোট আয়', value: formatPoints(profile.total_earned), icon: TrendingUp, color: 'var(--mint)', bg: 'var(--mint-glow)' },
+          { label: 'স্ট্রিক', value: `${profile.streak_days} দিন`, icon: Flame, color: 'var(--danger)', bg: 'var(--danger-glow)' },
+          { label: 'রেফারেল', value: `${profile.referral_count} জন`, icon: Users, color: 'var(--indigo)', bg: 'var(--indigo-glow)' },
+        ].map((s, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
           >
-            লগআউট
-          </button>
-        </div>
-      </header>
-
-      {/* Tabs (mobile only) */}
-      <div className="flex lg:hidden px-5 gap-6 border-b border-[#2A2E38] overflow-x-auto">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`pb-3 pt-3.5 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap ${
-              tab === t.id ? 'text-[#00D9A3] border-[#00D9A3]' : 'text-[#8B8F99] border-transparent'
-            }`}
-          >
-            {t.label}
-          </button>
+            <Card className="relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-16 h-16 rounded-full opacity-10" style={{ background: s.color, filter: 'blur(20px)' }} />
+              <div className="w-9 h-9 rounded-[var(--radius-md)] flex items-center justify-center mb-2" style={{ background: s.bg }}>
+                <s.icon className="w-[18px] h-[18px]" style={{ color: s.color }} />
+              </div>
+              <div className="text-lg lg:text-xl font-bold" style={{ color: s.color }}>{s.value}</div>
+              <div className="text-[11px] text-[var(--text-muted)]">{s.label}</div>
+            </Card>
+          </motion.div>
         ))}
       </div>
 
-      {/* Main content */}
-      <main className="flex-1 px-5 lg:px-10 py-4 lg:py-8 pb-28 lg:pb-10 w-full lg:overflow-y-auto">
-        <div className="max-w-[480px] lg:max-w-[1100px] mx-auto lg:mx-0">
-        {tab === 'browse' && (
-          <div>
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide">
-                আজকের জন্য উপলব্ধ টাস্ক
+      {/* Level + Daily Bonus Row */}
+      <div className="grid lg:grid-cols-2 gap-4 mb-6">
+        {/* Level Card */}
+        <Card>
+          <div className="flex items-center gap-4">
+            <ProgressRing progress={levelInfo.progress} size={64} strokeWidth={4}>
+              <span className="text-lg font-bold text-[var(--mint)]">{levelInfo.level}</span>
+            </ProgressRing>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-bold">{levelInfo.name}</span>
+                <span className="text-[11px] text-[var(--text-muted)]">লেভেল {levelInfo.level}</span>
               </div>
-              <button
-                onClick={() => setShowNewTask(true)}
-                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl whitespace-nowrap"
-              >
-                + নতুন টাস্ক পোস্ট করুন
-              </button>
+              <div className="w-full h-2 bg-[var(--bg-deep)] rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${levelInfo.progress}%` }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                  className="h-full bg-gradient-to-r from-[var(--mint)] to-[var(--cyan)] rounded-full"
+                />
+              </div>
+              <p className="text-[11px] text-[var(--text-muted)] mt-1">
+                পরের লেভেলে {Math.ceil(levelInfo.nextThreshold - profile.total_earned)} পয়েন্ট বাকি
+              </p>
             </div>
-            {tasks.length === 0 ? (
-              <EmptyState icon="📭" title="এখন কোনো টাস্ক নেই" desc="কিছুক্ষণ পর আবার চেক করুন" />
-            ) : (
-              <div className="lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-4">
-                {tasks.map((t, i) => (
-                  <React.Fragment key={t.id}>
-                    <TaskCard task={t} onStart={setActiveTask} />
-                    {(i + 1) % 3 === 0 && (
-                      <div className="lg:col-span-full">
-                        <AdsterraBanner />
-                      </div>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            )}
           </div>
-        )}
+        </Card>
 
-        {tab === 'mine' && (
-          <div>
-            <ReferralCard profile={profile} />
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide">
-                আপনার পোস্ট করা টাস্ক
+        {/* Daily Bonus */}
+        <Card className={dailyBonus.claimed ? 'opacity-60' : ''}>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Gift className="w-5 h-5 text-[var(--amber)]" />
+                <span className="font-bold">দৈনিক বোনাস</span>
               </div>
-              <button
-                onClick={() => setShowNewTask(true)}
-                className="hidden lg:inline-flex bg-[#E8E8EA] text-[#0F1115] font-bold text-xs px-4 py-2 rounded-xl whitespace-nowrap"
-              >
-                + নতুন টাস্ক পোস্ট করুন
-              </button>
+              <p className="text-sm text-[var(--text-muted)]">
+                {dailyBonus.claimed
+                  ? 'আজকের বোনাস নেওয়া হয়েছে ✓'
+                  : `স্ট্রিক: ${dailyBonus.streak} দিন — প্রতিদিন বাড়তে থাকে!`}
+              </p>
             </div>
-            {myTasks.length === 0 ? (
-              <EmptyState icon="📦" title="কোনো টাস্ক পোস্ট করেননি" desc="নিচের বাটনে ক্লিক করে শুরু করুন" />
-            ) : (
-              <div className="lg:grid lg:grid-cols-2 lg:gap-4">
-                {myTasks.map((t) => (
-                  <div key={t.id} className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-4 mb-3 lg:mb-0">
-                    <div className="text-sm font-semibold line-clamp-1 mb-1">{t.content_link}</div>
-                    <div className="text-xs text-[#8B8F99] mb-2.5">স্ট্যাটাস: {t.status === 'active' ? 'চলমান' : t.status}</div>
-                    <div className="w-full h-[5px] bg-[#2A2E38] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-[#00D9A3] to-[#00B589] rounded-full"
-                        style={{ width: `${Math.min(100, (t.total_completed / t.total_needed) * 100)}%` }}
-                      />
-                    </div>
-                    <div className="text-[11px] text-[#8B8F99] mt-1.5">
-                      {t.total_completed}/{t.total_needed} সম্পন্ন
-                    </div>
-                    <button
-                      onClick={() => setExpandedTaskId(expandedTaskId === t.id ? null : t.id)}
-                      className="text-xs text-[#00D9A3] font-semibold mt-2.5"
-                    >
-                      {expandedTaskId === t.id ? '▲ সাবমিশন বন্ধ করুন' : '▼ সাবমিশন রিভিউ করুন'}
-                    </button>
-                    {expandedTaskId === t.id && (
-                      <SubmissionList
-                        taskId={t.id}
-                        onUpdated={() => {
-                          loadMyTasks()
-                        }}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <Button
+              size="sm"
+              variant={dailyBonus.claimed ? 'secondary' : 'amber'}
+              loading={claiming}
+              onClick={claimDailyBonus}
+              disabled={dailyBonus.claimed}
+            >
+              {dailyBonus.claimed ? 'নেওয়া হয়েছে' : 'নিন'}
+            </Button>
           </div>
-        )}
-
-        {tab === 'history' && (
-          <div>
-            <div className="text-xs font-semibold text-[#8B8F99] uppercase tracking-wide mb-3">
-              আপনার সাবমিশন
-            </div>
-            {history.length === 0 ? (
-              <EmptyState icon="🕓" title="এখনও কোনো সাবমিশন নেই" desc="টাস্ক করলে এখানে দেখাবে" />
-            ) : (
-              <div className="lg:grid lg:grid-cols-2 lg:gap-3">
-                {history.map((h) => (
-                  <div
-                    key={h.id}
-                    className="bg-[#1A1D24] border border-[#2A2E38] rounded-2xl p-4 mb-3 lg:mb-0 flex justify-between items-start"
-                  >
-                    <div>
-                      <div className="text-sm font-semibold mb-1">
-                        {new Date(h.created_at).toLocaleString('bn-BD')}
-                      </div>
-                    </div>
-                    <span
-                      className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase ${
-                        h.status === 'approved'
-                          ? 'text-[#00D9A3] bg-[#00D9A3]/10'
-                          : h.status === 'rejected'
-                          ? 'text-[#FF5C5C] bg-[#FF5C5C]/10'
-                          : 'text-[#FFB020] bg-[#FFB020]/10'
-                      }`}
-                    >
-                      {h.status === 'approved' ? 'অনুমোদিত' : h.status === 'rejected' ? 'বাতিল' : 'পেন্ডিং'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        </div>
-      </main>
-
-      {/* FAB (mobile only) */}
-      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[480px] px-5">
-        <button
-          onClick={() => setShowNewTask(true)}
-          className="w-full bg-[#E8E8EA] text-[#0F1115] font-bold py-[15px] rounded-2xl text-sm shadow-2xl"
-        >
-          + নতুন টাস্ক পোস্ট করুন
-        </button>
+        </Card>
       </div>
 
-      {/* Modals */}
-      {activeTask && (
-        <ActionModal
-          task={activeTask}
-          userId={user.id}
-          onClose={() => setActiveTask(null)}
-          onSubmitted={handleSubmitted}
-        />
-      )}
-      {showNewTask && (
-        <NewTaskModal
-          userId={user.id}
-          currentPoints={profile.points}
-          onClose={() => setShowNewTask(false)}
-          onCreated={handleNewTaskCreated}
-        />
-      )}
+      {/* Quick Actions */}
+      <div className="mb-6">
+        <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-3">দ্রুত আয় করুন</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {QUICK_ACTIONS.map((a, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.05 }}
+            >
+              <Link href={a.href}>
+                <Card hover glow="mint" className="text-center group cursor-pointer">
+                  <div
+                    className="w-12 h-12 rounded-[var(--radius-lg)] flex items-center justify-center mx-auto mb-2 transition-transform group-hover:scale-110"
+                    style={{ background: `${a.color}15` }}
+                  >
+                    <a.icon className="w-6 h-6" style={{ color: a.color }} />
+                  </div>
+                  <div className="text-sm font-semibold mb-0.5">{a.label}</div>
+                  <div className="text-xs font-bold" style={{ color: a.color }}>{a.points} পয়েন্ট</div>
+                </Card>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wide">সাম্প্রতিক লেনদেন</h2>
+          <Link href="/dashboard/withdraw" className="text-xs text-[var(--mint)] font-semibold flex items-center gap-1 hover:underline">
+            সব দেখুন <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <Card padding={false}>
+          {transactions.length === 0 ? (
+            <div className="text-center py-10 text-[var(--text-muted)] text-sm">
+              এখনো কোনো লেনদেন নেই — কাজ করে আয় শুরু করুন!
+            </div>
+          ) : (
+            <div className="divide-y divide-[var(--border)]">
+              {transactions.slice(0, 5).map((t) => (
+                <div key={t.id} className="flex items-center justify-between px-5 py-3">
+                  <div>
+                    <div className="text-sm font-medium">{t.description}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">
+                      {new Date(t.created_at).toLocaleString('bn-BD')}
+                    </div>
+                  </div>
+                  <span className={cn(
+                    'text-sm font-bold',
+                    t.amount > 0 ? 'text-[var(--mint)]' : 'text-[var(--danger)]'
+                  )}>
+                    {t.amount > 0 ? '+' : ''}{t.amount}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
 
       {/* Toast */}
       {toast && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-[#00D9A3] text-[#04261D] px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl z-[200] max-w-[90%]">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          className="fixed top-5 left-1/2 -translate-x-1/2 bg-[var(--mint)] text-[#04261D] px-5 py-3 rounded-[var(--radius-lg)] text-sm font-semibold shadow-[var(--shadow-lg)] z-[200] max-w-[90%]"
+        >
           {toast}
-        </div>
+        </motion.div>
       )}
-    </div>
-  )
-}
-
-function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
-  return (
-    <div className="text-center py-16 px-5 text-[#8B8F99]">
-      <div className="text-4xl mb-3 opacity-50">{icon}</div>
-      <div className="text-sm font-semibold text-[#E8E8EA] mb-1">{title}</div>
-      <div className="text-xs">{desc}</div>
     </div>
   )
 }

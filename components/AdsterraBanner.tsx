@@ -10,7 +10,6 @@ export default function AdsterraBanner() {
     if (loadedRef.current || !containerRef.current) return
     loadedRef.current = true
 
-    // atOptions ভ্যারিয়েবল গ্লোবালি সেট করা, invoke.js এটা পড়ে
     ;(window as unknown as { atOptions?: Record<string, unknown> }).atOptions = {
       key: 'bf8f7cbc1766450400c5c7f6f579333f',
       format: 'iframe',

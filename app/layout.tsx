@@ -12,8 +12,14 @@ const hindSiliguri = Hind_Siliguri({
 });
 
 export const metadata: Metadata = {
-  title: "MINTIQ — Creator Exchange",
-  description: "Creator-দের মধ্যে real cross-promotion network",
+  title: "MINTIQ — টাকা আয় করুন | Micro Earning Platform",
+  description: "বিজ্ঞাপন দেখুন, ভিডিও দেখুন, সার্ভে সম্পন্ন করুন, গেম খেলুন — পয়েন্ট আয় করুন এবং টাকা তুলুন।",
+  keywords: "earn money, micro tasks, watch ads, surveys, games, bKash, Nagad, টাকা আয়, বাংলাদেশ",
+  openGraph: {
+    title: "MINTIQ — টাকা আয় করুন",
+    description: "বিজ্ঞাপন, ভিডিও, সার্ভে, গেম — সব করে আয় করুন",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -23,9 +29,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bn" className={`${hindSiliguri.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#0F1115] text-[#E8E8EA]">
+      <body className="min-h-full flex flex-col bg-[var(--bg-deep)] text-[var(--text-primary)]">
         <AuthProvider>{children}</AuthProvider>
-        {/* Adsterra Social Bar - সম্পূর্ণ সাইটে ভাসমান থাকে */}
         <Script
           src="https://pl29892400.effectivecpmnetwork.com/84/78/d4/8478d4246b380557aa79b8bf01df131d.js"
           strategy="lazyOnload"
