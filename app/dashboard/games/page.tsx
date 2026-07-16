@@ -39,7 +39,7 @@ export default function GamesPage() {
           counts[p.game_id] = (counts[p.game_id] || 0) + 1
         }
         const left: Record<string, number> = {}
-        for (const g of data) {
+        for (const g of data || []) {
           left[g.id] = g.max_plays_per_day - (counts[g.id] || 0)
         }
         setPlaysLeft(left)
