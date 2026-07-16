@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     icon: "/favicon.svg",
     apple: "/icon-192.png",
   },
+  verification: {
+    google: "f8JfrsCDgj4QmwqbR7vjys25FcLVJqv0WijpOWtcy3U",
+  },
   description: "বিজ্ঞাপন দেখুন, ভিডিও দেখুন, সার্ভে সম্পন্ন করুন, গেম খেলুন — পয়েন্ট আয় করুন এবং টাকা তুলুন।",
   keywords: "earn money, micro tasks, watch ads, surveys, games, bKash, Nagad, টাকা আয়, বাংলাদেশ",
   openGraph: {
