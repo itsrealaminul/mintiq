@@ -14,6 +14,10 @@ const hindSiliguri = Hind_Siliguri({
 export const metadata: Metadata = {
   title: "MINTIQ — টাকা আয় করুন | Micro Earning Platform",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/icon-192.png",
+  },
   description: "বিজ্ঞাপন দেখুন, ভিডিও দেখুন, সার্ভে সম্পন্ন করুন, গেম খেলুন — পয়েন্ট আয় করুন এবং টাকা তুলুন।",
   keywords: "earn money, micro tasks, watch ads, surveys, games, bKash, Nagad, টাকা আয়, বাংলাদেশ",
   openGraph: {
