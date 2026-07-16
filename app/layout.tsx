@@ -13,6 +13,7 @@ const hindSiliguri = Hind_Siliguri({
 
 export const metadata: Metadata = {
   title: "MINTIQ — টাকা আয় করুন | Micro Earning Platform",
+  manifest: "/manifest.json",
   description: "বিজ্ঞাপন দেখুন, ভিডিও দেখুন, সার্ভে সম্পন্ন করুন, গেম খেলুন — পয়েন্ট আয় করুন এবং টাকা তুলুন।",
   keywords: "earn money, micro tasks, watch ads, surveys, games, bKash, Nagad, টাকা আয়, বাংলাদেশ",
   openGraph: {
@@ -36,6 +37,9 @@ export default function RootLayout({
           strategy="lazyOnload"
         />
         <Analytics />
+        <Script id="sw-register" strategy="afterInteractive">
+          {`if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}`}
+        </Script>
       </body>
     </html>
   );
