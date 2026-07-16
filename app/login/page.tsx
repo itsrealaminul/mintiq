@@ -176,6 +176,12 @@ function LoginForm() {
           <Button type="submit" loading={loading} fullWidth size="lg">
             {loading ? 'অপেক্ষা করুন...' : mode === 'signup' ? 'অ্যাকাউন্ট তৈরি করুন' : 'লগইন করুন'}
           </Button>
+
+          {mode === 'login' && (
+            <Link href="/login/reset-password" className="text-center text-sm text-[var(--mint)] hover:underline">
+              পাসওয়ার্ড ভুলে গেছেন?
+            </Link>
+          )}
         </form>
       </motion.div>
 

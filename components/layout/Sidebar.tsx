@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import type { Profile } from '@/lib/types'
 import { getLevelInfo, formatPoints } from '@/lib/utils'
 import ProgressRing from '@/components/ui/ProgressRing'
+import NotificationBell from '@/components/NotificationBell'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'ড্যাশবোর্ড', icon: LayoutDashboard },
@@ -41,16 +42,18 @@ export default function Sidebar({
     <aside className="hidden lg:flex flex-col w-[260px] h-screen sticky top-0 border-r border-[var(--border)] bg-[var(--bg-surface)]">
       {/* Logo */}
       <div className="px-5 py-6 border-b border-[var(--border)]">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--mint)] to-[var(--mint-dark)] flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-[#04261D]" />
-          </div>
-          <div>
-            <span className="text-lg font-bold">MINTIQ</span>
-            <p className="text-[10px] text-[var(--text-muted)] -mt-0.5">Creator Exchange</p>
-          </div>
-        </Link>
-      </div>
+        <div className="flex items-center justify-between mb-4">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--mint)] to-[var(--mint-dark)] flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-[#04261D]" />
+            </div>
+            <div>
+              <span className="text-lg font-bold">MINTIQ</span>
+              <p className="text-[10px] text-[var(--text-muted)] -mt-0.5">Creator Exchange</p>
+            </div>
+          </Link>
+          <NotificationBell userId={profile.id} />
+        </div>
 
       {/* User Card */}
       <div className="px-4 py-4 border-b border-[var(--border)]">

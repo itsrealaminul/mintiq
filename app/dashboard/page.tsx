@@ -15,6 +15,7 @@ import ProgressRing from '@/components/ui/ProgressRing'
 import { getLevelInfo, formatPoints, cn } from '@/lib/utils'
 import type { Transaction } from '@/lib/types'
 import { useTransactions } from '@/lib/hooks'
+import { requestNotificationPermission, scheduleDailyReminder } from '@/lib/notifications'
 
 const QUICK_ACTIONS = [
   { icon: Eye, label: 'বিজ্ঞাপন দেখুন', href: '/dashboard/ads', color: 'var(--mint)', points: '+1-3' },
@@ -35,6 +36,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!profile) return
     checkDailyBonus()
+    // Request notification permission
+    requestNotificationPermission().then((granted) => {
+      if (granted) {
+        scheduleDailyReminder()
+      }
+    })
   }, [profile])
 
   async function checkDailyBonus() {
