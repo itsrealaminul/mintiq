@@ -139,3 +139,51 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ═══ Responsive Design ═══ */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile First */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+/* Safe Area for Mobile */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Touch Friendly */
+@media (hover: none) and (pointer: coarse) {
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

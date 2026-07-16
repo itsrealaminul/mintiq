@@ -112,7 +112,7 @@ export default function AdminPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
           {[
             { label: 'মোট ইউজার', value: stats.totalUsers, icon: Users, color: 'var(--mint)' },
             { label: 'মোট টাস্ক', value: stats.totalTasks, icon: Package, color: 'var(--cyan)' },

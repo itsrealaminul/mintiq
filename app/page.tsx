@@ -81,7 +81,7 @@ export default function LandingPage() {
               <span className="text-sm font-semibold text-[var(--mint)]">বাংলাদেশের #১ মাইক্রো আর্নিং প্ল্যাটফর্ম</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               <span className="gradient-text">সহজে আয় করুন</span>
               <br />
               <span className="text-[var(--text-secondary)] text-2xl sm:text-3xl lg:text-4xl font-medium">

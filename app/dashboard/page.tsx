@@ -99,7 +99,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
         {[
           { label: 'বর্তমান পয়েন্ট', value: formatPoints(profile.points), icon: Star, color: 'var(--amber)', bg: 'var(--amber-glow)' },
           { label: 'মোট আয়', value: formatPoints(profile.total_earned), icon: TrendingUp, color: 'var(--mint)', bg: 'var(--mint-glow)' },
