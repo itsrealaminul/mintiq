@@ -33,8 +33,8 @@ export default function Card({
       onClick={onClick}
       className={cn(
         'bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-xl)] transition-all duration-300',
-        padding && 'p-5',
-        hover && 'cursor-pointer',
+        !!padding && 'p-5',
+        !!hover && 'cursor-pointer',
         hover && glow && glowStyles[glow],
         className,
       )}

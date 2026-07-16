@@ -54,7 +54,7 @@ export default function Button({
         'disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],
-        fullWidth && 'w-full',
+        !!fullWidth && 'w-full',
         className,
       )}
     >

@@ -50,8 +50,8 @@ export default function Input({
             'px-3 py-2.5 text-sm text-[var(--text-primary)]',
             'focus:outline-none focus:border-[var(--mint)] focus:shadow-[0_0_0_2px_var(--mint-glow)]',
             'transition-all duration-200 placeholder:text-[var(--text-muted)]',
-            icon && 'pl-10',
-            error && 'border-[var(--danger)]',
+            !!icon && 'pl-10',
+            !!error && 'border-[var(--danger)]',
           )}
         />
       </div>
