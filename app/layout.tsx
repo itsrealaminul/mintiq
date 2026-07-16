@@ -12,12 +12,19 @@ const hindSiliguri = Hind_Siliguri({
   weight: ["400", "500", "600", "700"],
 });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#0A0E1A',
+}
+
 export const metadata: Metadata = {
   title: "MINTIQ — টাকা আয় করুন | Micro Earning Platform",
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.svg",
-    apple: "/icon-192.png",
+    apple: "/icon-192.svg",
   },
   verification: {
     google: "f8JfrsCDgj4QmwqbR7vjys25FcLVJqv0WijpOWtcy3U",

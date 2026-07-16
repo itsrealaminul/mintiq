@@ -26,7 +26,7 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false)
   const supabase = createClient()
 
-  const ADMIN_PASSWORD = 'mintiq2025'
+  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'mintiq2025'
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault()
