@@ -20,6 +20,7 @@ create table public.profiles (
   level integer default 1,
   streak_days integer default 0,
   last_active timestamptz default now(),
+  fb_profile_link text,
   created_at timestamptz default now()
 );
 

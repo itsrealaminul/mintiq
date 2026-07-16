@@ -17,6 +17,7 @@ function LoginForm() {
   const [fbLink, setFbLink] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [confirmationSent, setConfirmationSent] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const refCode = searchParams.get('ref')
@@ -43,11 +44,19 @@ function LoginForm() {
         setLoading(false)
         return
       }
-      if (data.user && fbLink) {
-        await supabase.from('profiles').update({ fb_profile_link: fbLink }).eq('id', data.user.id)
+      // If session exists, user is logged in (email confirmation disabled)
+      if (data.session) {
+        // Save Facebook profile link if provided
+        if (fbLink && data.user) {
+          await supabase.from('profiles').update({ fb_profile_link: fbLink }).eq('id', data.user.id)
+        }
+        router.push('/dashboard')
+        router.refresh()
+      } else {
+        // Email confirmation required — show confirmation message
+        setConfirmationSent(true)
+        setLoading(false)
       }
-      router.push('/dashboard')
-      router.refresh()
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
       if (signInError) {
@@ -83,8 +92,34 @@ function LoginForm() {
         <p className="text-sm text-[var(--text-muted)]">টাকা আয় করুন — ফ্রি শুরু করুন</p>
       </motion.div>
 
+      {/* Email Confirmation Screen */}
+      {confirmationSent && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-xl)] p-6 text-center"
+        >
+          <div className="w-16 h-16 rounded-full bg-[var(--mint-glow)] flex items-center justify-center mx-auto mb-4">
+            <Mail className="w-8 h-8 text-[var(--mint)]" />
+          </div>
+          <h2 className="text-lg font-bold mb-2">ইমেইল চেক করুন!</h2>
+          <p className="text-sm text-[var(--text-muted)] mb-4">
+            <span className="font-semibold text-[var(--text-primary)]">{email}</span> এ একটি কনফার্মেশন লিংক পাঠানো হয়েছে।
+          </p>
+          <p className="text-xs text-[var(--text-muted)] mb-6">
+            ইমেইলের লিংকে ক্লিক করে অ্যাকাউন্ট ভেরিফাই করুন, তারপর লগইন করুন।
+          </p>
+          <button
+            onClick={() => { setConfirmationSent(false); setMode('login') }}
+            className="w-full py-3 rounded-[var(--radius-lg)] bg-[var(--mint)] text-[#04261D] font-semibold text-sm hover:opacity-90 transition-opacity"
+          >
+            লগইন পেজে যান
+          </button>
+        </motion.div>
+      )}
+
       {/* Referral Banner */}
-      {refCode && (
+      {refCode && !confirmationSent && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -97,7 +132,7 @@ function LoginForm() {
       )}
 
       {/* Form Card */}
-      <motion.div
+      {!confirmationSent && <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -183,9 +218,9 @@ function LoginForm() {
             </Link>
           )}
         </form>
-      </motion.div>
+      </motion.div>}
 
-      {mode === 'signup' && (
+      {mode === 'signup' && !confirmationSent && (
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
