@@ -4,6 +4,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import { JsonLd } from "@/components/SEO";
 
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-hind-siliguri",
@@ -35,6 +36,7 @@ export default function RootLayout({
   return (
     <html lang="bn" className={`${hindSiliguri.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[var(--bg-deep)] text-[var(--text-primary)]">
+        <JsonLd />
         <AuthProvider>{children}</AuthProvider>
         <Script
           src="https://pl29892400.effectivecpmnetwork.com/84/78/d4/8478d4246b380557aa79b8bf01df131d.js"
