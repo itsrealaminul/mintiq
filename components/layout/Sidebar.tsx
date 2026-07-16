@@ -54,6 +54,7 @@ export default function Sidebar({
           </Link>
           <NotificationBell userId={profile.id} />
         </div>
+      </div>
 
       {/* User Card */}
       <div className="px-4 py-4 border-b border-[var(--border)]">
