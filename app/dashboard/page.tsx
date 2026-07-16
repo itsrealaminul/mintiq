@@ -15,7 +15,7 @@ import ProgressRing from '@/components/ui/ProgressRing'
 import { getLevelInfo, formatPoints, cn } from '@/lib/utils'
 import type { Transaction } from '@/lib/types'
 import { useTransactions } from '@/lib/hooks'
-import { requestNotificationPermission, scheduleDailyReminder } from '@/lib/notifications'
+import { requestNotificationPermission, scheduleDailyReminder, scheduleNewTaskNotification, sendStreakNotification } from '@/lib/notifications'
 
 const QUICK_ACTIONS = [
   { icon: Eye, label: 'বিজ্ঞাপন দেখুন', href: '/dashboard/ads', color: 'var(--mint)', points: '+1-3' },
@@ -40,6 +40,11 @@ export default function DashboardPage() {
     requestNotificationPermission().then((granted) => {
       if (granted) {
         scheduleDailyReminder()
+        scheduleNewTaskNotification()
+        // Streak notification
+        if (profile.streak_days >= 3) {
+          sendStreakNotification(profile.streak_days)
+        }
       }
     })
   }, [profile])
