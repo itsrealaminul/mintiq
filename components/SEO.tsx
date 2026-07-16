@@ -4,7 +4,7 @@ export function JsonLd() {
     '@type': 'WebApplication',
     name: 'MINTIQ',
     description: 'বাংলাদেশের #১ মাইক্রো আর্নিং প্ল্যাটফর্ম — বিজ্ঞাপন দেখুন, ভিডিও দেখুন, সার্ভে করুন, গেম খেলুন এবং টাকা আয় করুন',
-    url: 'https://mintiq.vercel.app',
+    url: 'https://mintiq-rose.vercel.app',
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Web',
     offers: {
