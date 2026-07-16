@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Shield, Users, Package, Wallet, CheckCircle2, XCircle, Eye, TrendingUp, BarChart3, Calendar, Clock } from 'lucide-react'
 import Card from '@/components/ui/Card'
@@ -125,6 +126,23 @@ export default function AdminPage() {
               <div className="text-lg font-bold" style={{ color: s.color }}>{s.value}</div>
               <div className="text-[11px] text-[var(--text-muted)]">{s.label}</div>
             </Card>
+          ))}
+        </div>
+
+        {/* Admin Navigation */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          {[
+            { href: '/admin', label: 'Admin Panel', icon: Shield, color: 'var(--mint)' },
+            { href: '/admin/revenue', label: 'Revenue Dashboard', icon: TrendingUp, color: 'var(--amber)' },
+            { href: '/admin/content', label: 'Content Manager', icon: Package, color: 'var(--cyan)' },
+            { href: '/admin/users', label: 'User Manager', icon: Users, color: 'var(--indigo)' },
+          ].map((item, i) => (
+            <Link key={i} href={item.href}>
+              <Card hover glow="mint" className="cursor-pointer">
+                <item.icon className="w-6 h-6 mb-2" style={{ color: item.color }} />
+                <div className="font-bold text-sm">{item.label}</div>
+              </Card>
+            </Link>
           ))}
         </div>
 
