@@ -41,7 +41,7 @@ export function useAchievements(userId: string | undefined) {
       supabase.from('user_achievements').select('achievement_id').eq('user_id', userId),
     ])
     if (achRes.data) setAchievements(achRes.data as Achievement[])
-    if (uaRes.data) setUnlocked(uaRes.data.map((u: UserAchievement) => u.achievement_id))
+    if (uaRes.data) setUnlocked(uaRes.data.map((u: { achievement_id: string }) => u.achievement_id))
     setLoading(false)
   }, [userId, supabase])
 
