@@ -73,7 +73,7 @@ export default function ReferralPage() {
           </Button>
         </div>
 
-        {navigator.share && (
+        {typeof navigator.share === "function" && (
           <Button fullWidth variant="secondary" onClick={handleShare}>
             <Share2 className="w-4 h-4" /> শেয়ার করুন
           </Button>
