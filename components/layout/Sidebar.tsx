@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Eye, Video, ClipboardList, Gamepad2,
-  ListChecks, Wallet, Trophy, Users, Award, LogOut, Sparkles, Megaphone
+  ListChecks, Wallet, Trophy, Users, Award, LogOut, Sparkles, Megaphone, Headphones
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Profile } from '@/lib/types'
@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/leaderboard', label: 'লিডারবোর্ড', icon: Trophy },
   { href: '/dashboard/referral', label: 'রেফারেল', icon: Users },
   { href: '/dashboard/achievements', label: 'অর্জন', icon: Award },
+  { href: '/support', label: 'সাপোর্ট', icon: Headphones },
 ]
 
 export default function Sidebar({
