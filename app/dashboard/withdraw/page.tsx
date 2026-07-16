@@ -11,6 +11,7 @@ import Input from '@/components/ui/Input'
 import Badge from '@/components/ui/Badge'
 import { WITHDRAWAL_METHODS } from '@/lib/types'
 import { formatPoints } from '@/lib/utils'
+import { calculateWithdrawal, formatMoney } from '@/lib/revenue'
 
 const MIN_WITHDRAW = 500
 
@@ -89,9 +90,34 @@ export default function WithdrawPage() {
         <div className="text-center">
           <div className="text-sm text-[var(--text-muted)] mb-1">আপনার ব্যালেন্স</div>
           <div className="text-3xl font-bold gradient-text">{formatPoints(profile.points)} পয়েন্ট</div>
-          <div className="text-sm text-[var(--text-muted)] mt-1">≈ ৳{(profile.points * 0.1).toFixed(0)} (আনুমানিক)</div>
+          <div className="text-sm text-[var(--text-muted)] mt-1">≈ {formatMoney(profile.points * 0.10)} (আনুমানিক)</div>
         </div>
       </Card>
+
+      {amount && parseInt(amount) >= MIN_WITHDRAW && (
+        <Card className="mb-4">
+          <h3 className="text-sm font-bold mb-2">উত্তোলন বিবরণ:</h3>
+          {(() => {
+            const calc = calculateWithdrawal(parseInt(amount))
+            return (
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-muted)]">আপনি তুলছেন:</span>
+                  <span className="font-bold">{calc.grossPoints} পয়েন্ট ({formatMoney(calc.grossMoney)})</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[var(--text-muted)]">সার্ভিস চার্জ ({calc.feePercent}%):</span>
+                  <span className="text-[var(--danger)]">-{calc.feePoints} পয়েন্ট ({formatMoney(calc.feeMoney)})</span>
+                </div>
+                <div className="border-t border-[var(--border)] pt-1 flex justify-between">
+                  <span className="font-bold">আপনি পাবেন:</span>
+                  <span className="font-bold text-[var(--mint)]">{calc.netPoints} পয়েন্ট ({formatMoney(calc.netMoney)})</span>
+                </div>
+              </div>
+            )
+          })()}
+        </Card>
+      )}
 
       {success ? (
         <Card className="text-center">
